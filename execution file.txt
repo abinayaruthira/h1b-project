@@ -1,0 +1,247 @@
+2.a)  select worksite,count(job_title) as cnt,year from h1b_final where job_title == "DATA ENGINEER" and year == "2016" group by worksite,year order by cnt desc limit 5;
+
+output:
+MENLO PARK, CALIFORNIA	35	2016
+NEW YORK, NEW YORK	34	2016
+SAN FRANCISCO, CALIFORNIA	33	2016
+SAN MATEO, CALIFORNIA	9	2016
+CHICAGO, ILLINOIS	6	2016
+
+-->select worksite,count(job_title) as cnt,year from h1b_final where job_title == "DATA ENGINEER" and year == "2015" group by worksite,year order by cnt desc limit 5;
+
+SAN FRANCISCO, CALIFORNIA	33	2015
+NEW YORK, NEW YORK	25	2015
+MENLO PARK, CALIFORNIA	19	2015
+SAN MATEO, CALIFORNIA	12	2015
+SEATTLE, WASHINGTON	6	2015
+
+-->select worksite,count(job_title) as cnt,year from h1b_final where job_title == "DATA ENGINEER" and year == "2014" group by worksite,year order by cnt desc limit 5;
+
+MENLO PARK, CALIFORNIA	13	2014
+SAN FRANCISCO, CALIFORNIA	12	2014
+NEW YORK, NEW YORK	9	2014
+MOUNTAIN VIEW, CALIFORNIA	5	2014
+OMAHA, NEBRASKA	4	2014
+
+-->select worksite,count(job_title) as cnt,year from h1b_final where job_title == "DATA ENGINEER" and year == "2013" group by worksite,year order by cnt desc limit 5;
+
+MENLO PARK, CALIFORNIA	10	2013
+SAN FRANCISCO, CALIFORNIA	5	2013
+NEW YORK, NEW YORK	4	2013
+DUBLIN, OHIO	2	2013
+DETROIT, MICHIGAN	2	2013
+
+-->select worksite,count(job_title) as cnt,year from h1b_final where job_title == "DATA ENGINEER" and year == "2012" group by worksite,year order by cnt desc limit 5;
+
+SAN FRANCISCO, CALIFORNIA	7	2012
+PONTIAC, MICHIGAN	3	2012
+LOS ANGELES, CALIFORNIA	2	2012
+LEXINGTON, MASSACHUSETTS	2	2012
+SEATTLE, WASHINGTON	2	2012
+
+-->select worksite,count(job_title) as cnt,year from h1b_final where job_title == "DATA ENGINEER" and year == "2011" group by worksite,year order by cnt desc limit 5;
+
+SAN FRANCISCO, CALIFORNIA	3	2011
+PLANO, TEXAS	2	2011
+FARMINGTON HILLS, MICHIGAN	2	2011
+ATLANTA, GEORGIA	1	2011
+NORWALK, CONNECTICUT	1	2011
+
+
+
+2.b)
+ select worksite,count(case_status)as cnt,year from h1b_final where case_status == "CERTIFIED" and year == "2016" group by worksite,year order by cnt desc limit 10;
+
+NEW YORK, NEW YORK	34639	2016
+SAN FRANCISCO, CALIFORNIA	13836	2016
+HOUSTON, TEXAS	13655	2016
+ATLANTA, GEORGIA	11678	2016
+CHICAGO, ILLINOIS	11064	2016
+SAN JOSE, CALIFORNIA	9642	2016
+IRVING, TEXAS	7286	2016
+SUNNYVALE, CALIFORNIA	7227	2016
+CHARLOTTE, NORTH CAROLINA	6954	2016
+DALLAS, TEXAS	6501	2016
+
+--> select worksite,count(case_status)as cnt,year from h1b_final where case_status == "CERTIFIED" and year == "2016" group by worksite,year order by cnt desc limit 10;
+
+NEW YORK, NEW YORK	31266	2015
+HOUSTON, TEXAS	15242	2015
+SAN FRANCISCO, CALIFORNIA	12594	2015
+ATLANTA, GEORGIA	10500	2015
+SAN JOSE, CALIFORNIA	9589	2015
+CHICAGO, ILLINOIS	9239	2015
+SUNNYVALE, CALIFORNIA	7502	2015
+CHARLOTTE, NORTH CAROLINA	6509	2015
+IRVING, TEXAS	6120	2015
+DALLAS, TEXAS	6039	2015
+
+--> select worksite,count(case_status)as cnt,year from h1b_final where case_status == "CERTIFIED" and year == "2016" group by worksite,year order by cnt desc limit 10;
+
+--> select worksite,count(case_status)as cnt,year from h1b_final where case_status == "CERTIFIED" and year == "2016" group by worksite,year order by cnt desc limit 10;
+
+--> select worksite,count(case_status)as cnt,year from h1b_final where case_status == "CERTIFIED" and year == "2016" group by worksite,year order by cnt desc limit 10;
+
+--> select worksite,count(case_status)as cnt,year from h1b_final where case_status == "CERTIFIED" and year == "2016" group by worksite,year order by cnt desc limit 10;
+
+
+3.
+data = load '/home/cloudera/Desktop/hadoop_project/hadoop_data' using PigStorage('\t') AS 
+(id:int,case_status:chararray,employer_name:chararray,soc_name:chararray,job_title:chararray,full_time_position:chararray,prevailing_wages:int,year:chararray,worksite:chararray,longitude:double,latitude:double);
+new = foreach data generate case_status,job_title,employer_name;
+filterdata = filter new by case_status == 'CERTIFIED' AND job_title == 'DATA SCIENTIST';
+groupdata = group filterdata by employer_name;
+getcount = foreach groupdata generate group,COUNT(filterdata.case_status) as cnt;
+ordercount = order getcount by cnt desc;
+limitdata = limit ordercount 10;
+dump limitdata;
+
+output:
+
+(MICROSOFT CORPORATION,135)
+(FACEBOOK, INC.,90)
+(UBER TECHNOLOGIES, INC.,46)
+(TWITTER, INC.,30)
+(AIRBNB, INC.,23)
+(AGILONE, INC.,19)
+(LINKEDIN CORPORATION,16)
+(WAL-MART ASSOCIATES, INC.,15)
+(IBM CORPORATION,15)
+(GROUPON, INC.,14)
+
+4.
+data = load '/home/cloudera/Desktop/hadoop_project/hadoop_data' using PigStorage('\t') AS 
+(id:int,case_status:chararray,employer_name:chararray,soc_name:chararray,job_title:chararray,full_time_position:chararray,prevailing_wages:int,year:chararray,worksite:chararray,longitude:double,latitude:double);
+new = foreach data generate case_status,employer_name,year;
+groupdata = group new by (employer_name,year);
+getcount = foreach groupdata generate FLATTEN(group),COUNT(new.case_status) as cnt;
+orderdata = order getcount by cnt desc;
+limitdata = limit orderdata 5;
+dump limitdata;
+
+
+
+(INFOSYS LIMITED,2015,33245)
+(INFOSYS LIMITED,2013,32223)
+(INFOSYS LIMITED,2016,25352)
+(INFOSYS LIMITED,2014,23759)
+(CAPGEMINI AMERICA INC,2016,16725)
+
+
+
+--->data = load '/home/cloudera/Desktop/hadoop_project/hadoop_data' using PigStorage('\t') AS 
+(id:int,case_status:chararray,employer_name:chararray,soc_name:chararray,job_title:chararray,full_time_position:chararray,prevailing_wages:int,year:chararray,worksite:chararray,longitude:double,latitude:double);
+
+filterdata = filter data by year == '2016';
+new = foreach filterdata generate case_status,employer_name,year;
+groupdata = group new by employer_name;
+getcount = foreach groupdata generate group,COUNT(new.case_status) as cnt;
+orderdata = order getcount by cnt desc;
+limitdata = limit orderdata 5;
+dump limitdata;
+
+
+output for 2016:
+
+(INFOSYS LIMITED,25352)
+(CAPGEMINI AMERICA INC,16725)
+(TATA CONSULTANCY SERVICES LIMITED,13134)
+(WIPRO LIMITED,10607)
+(IBM INDIA PRIVATE LIMITED,9787)
+
+ouput for 2015:
+(INFOSYS LIMITED,33245)
+(TATA CONSULTANCY SERVICES LIMITED,16553)
+(WIPRO LIMITED,12201)
+(IBM INDIA PRIVATE LIMITED,10693)
+(ACCENTURE LLP,9605)
+
+output for 2014:
+
+(INFOSYS LIMITED,23759)
+(TATA CONSULTANCY SERVICES LIMITED,14098)
+(WIPRO LIMITED,8365)
+(DELOITTE CONSULTING LLP,7017)
+(ACCENTURE LLP,5498)
+
+
+5.
+data = load '/home/cloudera/Desktop/hadoop_project/hadoop_data' using PigStorage('\t') AS 
+(id:int,case_status:chararray,employer_name:chararray,soc_name:chararray,job_title:chararray,full_time_position:chararray,prevailing_wages:int,year:chararray,worksite:chararray,longitude:double,latitude:double);
+new = foreach data generate case_status,job_title,year;
+groupdata = group new by (job_title,year);
+getcount = foreach groupdata generate FLATTEN(group),COUNT(new.case_status) as cnt;
+orderdata = order getcount by cnt desc;
+limitdata = limit orderdata 10;
+dump limitdata;
+
+
+
+
+(PROGRAMMER ANALYST,2016,53743)
+(PROGRAMMER ANALYST,2015,53436)
+(PROGRAMMER ANALYST,2014,43114)
+(PROGRAMMER ANALYST,2013,33880)
+(PROGRAMMER ANALYST,2012,33066)
+(PROGRAMMER ANALYST,2011,31799)
+(SOFTWARE ENGINEER,2016,30668)
+(SOFTWARE ENGINEER,2015,27259)
+(SOFTWARE ENGINEER,2014,20500)
+(SOFTWARE ENGINEER,2013,15680)
+
+
+-->data = load '/home/cloudera/Desktop/hadoop_project/hadoop_data' using PigStorage('\t') AS 
+(id:int,case_status:chararray,employer_name:chararray,soc_name:chararray,job_title:chararray,full_time_position:chararray,prevailing_wages:int,year:chararray,worksite:chararray,longitude:double,latitude:double);
+filterdata = filter data by year == '2016';
+new = foreach filterdata generate case_status,job_title,year;
+groupdata = group new by job_title;
+getcount = foreach groupdata generate group,COUNT(new.case_status) as cnt;
+orderdata = order getcount by cnt desc;
+limitdata = limit orderdata 10;
+dump limitdata;
+
+
+output for 2016:
+
+(PROGRAMMER ANALYST,53743)
+(SOFTWARE ENGINEER,30668)
+(SOFTWARE DEVELOPER,14041)
+(SYSTEMS ANALYST,12314)
+(COMPUTER PROGRAMMER,11668)
+(BUSINESS ANALYST,9167)
+(COMPUTER SYSTEMS ANALYST,6900)
+(SENIOR SOFTWARE ENGINEER,6439)
+(DEVELOPER,6084)
+(TECHNOLOGY LEAD - US,5410)
+
+output for 2015:
+
+(PROGRAMMER ANALYST,53436)
+(SOFTWARE ENGINEER,27259)
+(COMPUTER PROGRAMMER,14054)
+(SYSTEMS ANALYST,12803)
+(SOFTWARE DEVELOPER,10441)
+(BUSINESS ANALYST,8853)
+(TECHNOLOGY LEAD - US,8242)
+(COMPUTER SYSTEMS ANALYST,7918)
+(TECHNOLOGY ANALYST - US,7014)
+(SENIOR SOFTWARE ENGINEER,6013)
+
+
+7.
+data = load '/home/cloudera/Desktop/hadoop_project/hadoop_data' using PigStorage('\t') AS 
+(id:int,case_status:chararray,employer_name:chararray,soc_name:chararray,job_title:chararray,full_time_position:chararray,prevailing_wages:int,year:chararray,worksite:chararray,longitude:double,latitude:double);
+new = foreach data generate case_status,year;
+groupdata = group new by year;
+getcount = foreach groupdata generate group,COUNT(new.case_status);
+dump getcount;
+
+
+(2011,358767)
+(2012,415605)
+(2013,442110)
+(2014,519426)
+(2015,618727)
+(2016,647803)
+(YEAR,1)
+
